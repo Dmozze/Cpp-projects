@@ -2,18 +2,18 @@
 
                 global          _start
 _start:
-                sub             rsp, 5 * 256 * 8        
-                lea             rdi, [rsp + 4 * 256 * 8]
-                mov             rcx, 256
+                sub             rsp, 5 * 129 * 8
+                lea             rdi, [rsp + 4 * 129 * 8]
+                mov             rcx, 129
                 call            read_long
-                lea             rdi, [rsp + 3 * 256 * 8]
+                lea             rdi, [rsp + 3 * 129 * 8]
                 call            read_long
-                lea             rsi, [rsp + 4 * 256 * 8]
-                lea             rbx, [rsp + 3 * 256 * 8]
-                lea             r8, [rsp + 2 * 256 * 8]
+                lea             rsi, [rsp + 4 * 129 * 8]
+                lea             rbx, [rsp + 3 * 129 * 8]
+                lea             r8, [rsp + 2 * 129 * 8]
                 mov             rdi, rsp
                 call            mul_long_long
-                mov             rcx, 2 * 256
+                mov             rcx, 2 * 129
                 call            write_long
 
                 mov             al, 0x0a
@@ -92,12 +92,15 @@ mul_long_long:
                 push            rcx
                 push            rdi
 
-                
+                mov             r11, rcx          
 .loop:
+                push            rcx
+                mov             rcx, r11
                 call            my_mul_long_short
                 call            my_add_long_long
                 add             rbx, 8
                 add             rdi, 8
+                pop             rcx
                 dec             rcx
                 jnz             .loop
 
