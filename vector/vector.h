@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MY_VECTOR_H
+#define MY_VECTOR_H
 
 #include <cassert>
 #include <cstddef>
@@ -6,10 +7,10 @@
 
 template<typename T>
 struct vector {
-    typedef T *iterator;
-    typedef T const *const_iterator;
+    using iterator = T*;
+    using const_iterator = T const*;
 
-    vector() noexcept : data_(nullptr), size_(0), capacity_(0)                                // O(1) nothrow
+    vector() noexcept : data_(nullptr), size_(0), capacity_(0)
     {}
 
     vector(vector const &other) : vector() {
@@ -20,7 +21,7 @@ struct vector {
     }
 
     vector &operator=(vector const &rhs) {
-        vector<T> copy(rhs);
+        vector copy(rhs);
         swap(copy);
         return *this;
     }
@@ -30,44 +31,46 @@ struct vector {
         operator delete(data_);
     }
 
-    T &operator[](size_t i) noexcept {                // O(1) nothrow
+    T &operator[](size_t i) noexcept {
         assert(!empty());
+        assert(i < size_);
         return data_[i];
     }
 
-    T const &operator[](size_t i) const noexcept {    // O(1) nothrow
+    T const &operator[](size_t i) const noexcept {
         assert(!empty());
+        assert(i < size_);
         return data_[i];
     }
 
-    T *data() noexcept {                              // O(1) nothrow
+    T *data() noexcept {
         return begin();
     }
 
-    T const *data() const noexcept {                  // O(1) nothrow
+    T const *data() const noexcept {
         return begin();
     }
 
-    size_t size() const noexcept {                    // O(1) nothrow
+    size_t size() const noexcept {
         return size_;
     }
 
-    T &front() noexcept {                             // O(1) nothrow
+    T &front() noexcept {
         assert(!empty());
         return data_[0];
     }
 
-    T const &front() const noexcept{                 // O(1) nothrow
+    T const &front() const noexcept{
         assert(!empty());
         return data_[0];
     }
 
-    T &back() noexcept {                              // O(1) nothrow
+    T &back() noexcept {
         assert(!empty());
         return data_[size_ - 1];
     }
 
-    T const &back() const noexcept {                  // O(1) nothrow
+    T const &back() const noexcept {
         assert(!empty());
         return data_[size_ - 1];
     }
@@ -88,11 +91,11 @@ struct vector {
     }
 
 
-    bool empty() const noexcept {                     // O(1) nothrow
+    bool empty() const noexcept {
         return size_ == 0;
     }
 
-    size_t capacity() const noexcept {                // O(1) nothrow
+    size_t capacity() const noexcept {
         return capacity_;
     }
 
@@ -135,15 +138,6 @@ struct vector {
         return begin() + size();
     }
 
-    iterator insert(iterator pos, T const &elem) {
-        ptrdiff_t length_from_back = end() - pos;
-        push_back(elem);
-        iterator inserted_position = end() - 1;
-        for (size_t i = 0; i < length_from_back; i++, inserted_position--) {
-            std::swap(*(inserted_position - 1), *inserted_position);
-        }
-        return inserted_position;
-    }
 
     iterator insert(const_iterator pos, T const &elem) {
         ptrdiff_t length_from_back = end() - pos;
@@ -155,63 +149,25 @@ struct vector {
         return inserted_position;
     }
 
-    iterator erase(iterator pos) {
-        bool is_result_init = false;
-        iterator result = nullptr;
-        for (iterator i = pos; i < end() - 1; i++) {
-            std::swap(*i, *(i + 1));
-            if (!is_result_init) {
-                result = i;
-                is_result_init = true;
-            }
-        }
-        pop_back();
-        return result;
-    }
+
 
     iterator erase(const_iterator pos) {
-        bool is_result_init = false;
-        iterator result = nullptr;
-        for (iterator i = (iterator) pos; i < end() - 1; i++) {
-            std::swap(*i, *(i + 1));
-            if (!is_result_init) {
-                result = i;
-                is_result_init = true;
-            }
-        }
-        pop_back();
-        return result;
+        return erase(pos, pos + 1);
     }
 
-    iterator erase(iterator first, iterator last) {
-        bool is_result_init = false;
-        iterator result = nullptr;
-        for (iterator end_of_inter = last, begin_of_inter = first;
-             end_of_inter < end(); begin_of_inter++, end_of_inter++) {
-            std::swap(*begin_of_inter, *end_of_inter);
-            if (!is_result_init) {
-                result = begin_of_inter;
-                is_result_init = true;
-            }
-        }
-        for (ptrdiff_t len_of_inter = last - first; len_of_inter > 0; len_of_inter--) {
-            pop_back();
-        }
-        return result;
-    }
 
     iterator erase(const_iterator first, const_iterator last) {
         bool is_result_init = false;
         iterator result = nullptr;
-        for (iterator end_of_inter = (iterator) last, begin_of_inter = (iterator) first;
-             end_of_inter < end(); begin_of_inter++, end_of_inter++) {
-            std::swap(*begin_of_inter, *end_of_inter);
+        for (iterator end_of_interval = begin() + static_cast<size_t>(last - begin()), begin_of_interval = (iterator) first;
+             end_of_interval < end(); begin_of_interval++, end_of_interval++) {
+            std::swap(*begin_of_interval, *end_of_interval);
             if (!is_result_init) {
-                result = begin_of_inter;
+                result = begin_of_interval;
                 is_result_init = true;
             }
         }
-        for (ptrdiff_t len_of_inter = last - first; len_of_inter > 0; len_of_inter--) {
+        for (ptrdiff_t len_of_interval = last - first; len_of_interval > 0; len_of_interval--) {
             pop_back();
         }
         return result;
@@ -270,3 +226,5 @@ private:
     size_t size_;
     size_t capacity_;
 };
+
+#endif
