@@ -4,7 +4,7 @@
 _start:
                 sub             rsp, 5 * 129 * 8
                 lea             rdi, [rsp + 4 * 129 * 8]
-                mov             rcx, 129
+                mov             rcx, 128
                 call            read_long
                 lea             rdi, [rsp + 3 * 129 * 8]
                 call            read_long
@@ -12,6 +12,7 @@ _start:
                 lea             rbx, [rsp + 3 * 129 * 8]
                 lea             r8, [rsp + 2 * 129 * 8]
                 mov             rdi, rsp
+                mov				rcx, 129
                 call            mul_long_long
                 mov             rcx, 2 * 129
                 call            write_long
