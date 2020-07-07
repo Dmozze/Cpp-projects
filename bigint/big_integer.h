@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 struct big_integer {
     big_integer();
@@ -9,8 +10,6 @@ struct big_integer {
     big_integer(big_integer const &other);
 
     big_integer(int a);
-
-    explicit big_integer(uint64_t a);
 
     explicit big_integer(std::string const &str);
 
@@ -59,7 +58,6 @@ struct big_integer {
 
     friend std::string to_string(big_integer const &a);
 
-    [[nodiscard]] uint32_t get_digit(size_t index) const;
 
 private:
 
@@ -69,14 +67,17 @@ private:
     std::vector<uint32_t> data;
     bool sign;
 
-    [[nodiscard]] big_integer mul_by_uint32_t(uint32_t rhs) const;
 
+    big_integer mul_by_uint32_t(uint32_t rhs) const;
+
+    friend big_integer square_mul(big_integer const & left, big_integer const & right);
     friend big_integer copy(big_integer const &left, size_t l, size_t r);
 
-    big_integer Karatsuba_mul(big_integer const & left, big_integer const & right);
+    static big_integer Karatsuba_mul(big_integer const & left, big_integer const & right);
 
-    [[nodiscard]]  std::pair<big_integer, uint32_t> div_by_uint32_t(uint32_t rhs) const;
+    std::pair<big_integer, uint32_t> div_by_uint32_t(uint32_t rhs) const;
 
+    big_integer & common_fun_bits(big_integer const &rhs, const std::function<size_t(size_t, size_t)>& fn);
     friend int32_t comparator(big_integer const &a, big_integer const &b);
 
     void set_sign();
@@ -85,8 +86,6 @@ private:
 
     uint32_t empty_block() const;
 
-    template<typename T>
-    void set_digit(size_t index, T digit);
 };
 
 big_integer abs(big_integer const &a);
