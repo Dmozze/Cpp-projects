@@ -111,22 +111,6 @@ big_integer big_integer::Karatsuba_mul(big_integer const &left, big_integer cons
     big_integer product_2 = Karatsuba_mul(left_r, right_r);
     big_integer product_3 = Karatsuba_mul(left_l + left_r, right_l + right_r);
 
-    /* std::string l_l = to_string(left_l);
-     std::string l_r = to_string(left_r);
-     std::string r_l = to_string(right_l);
-     std::string r_r = to_string(right_r);
-
-     std::string prd_1 = to_string(product_1);
-     std::string prd_2 = to_string(product_2);
-     std::string prd_3 = to_string(product_3);
-
-     std::string l = to_string(left);
-     std::string r = to_string(right);
-     std::string res = to_string((product_1 << (32 * n)) +((product_3 - product_1 - product_2) << (32 * ndiv2)) + product_2);
-
-     if (((product_1 << (32 * ndiv2 * 2)) +((product_3 - product_1 - product_2) << (32 * ndiv2)) + product_2) / left != right && ((product_1 << (32 * (n - 1))) +((product_3 - product_1 - product_2) << (32 * ndiv2)) + product_2) / left != right){
-         l = "kek";
-     }*/
     return (product_1 << (32 * 2 * ndiv2)) + ((product_3 - product_1 - product_2) << (32 * ndiv2)) + product_2;
 }
 
@@ -200,7 +184,7 @@ big_integer &big_integer::operator%=(big_integer const &rhs) {
     return *this = *this - (*this / rhs) * rhs;
 }
 
-big_integer &big_integer::common_fun_bits(big_integer const &rhs, const std::function<size_t(size_t, size_t)> &fn) {
+big_integer &big_integer::common_fun_bits(big_integer const &rhs, const std::function<uint32_t (uint32_t, uint32_t)> &fn) {
     data.resize(std::max(data.size(), rhs.data.size()) + 1, empty_block());
     for (size_t i = 0; i < data.size(); i++) {
         data[i] = fn(data[i], i < rhs.data.size() ? rhs.data[i] : rhs.empty_block());
@@ -211,15 +195,15 @@ big_integer &big_integer::common_fun_bits(big_integer const &rhs, const std::fun
 }
 
 big_integer &big_integer::operator&=(big_integer const &rhs) {
-    return common_fun_bits(rhs, [](size_t a, size_t b) -> size_t { return a & b; });
+    return common_fun_bits(rhs, [](uint32_t a, uint32_t b) -> uint32_t { return a & b; });
 }
 
 big_integer &big_integer::operator|=(big_integer const &rhs) {
-    return common_fun_bits(rhs, [](size_t a, size_t b) -> size_t { return a | b; });
+    return common_fun_bits(rhs, [](uint32_t a, uint32_t b) -> uint32_t { return a | b; });
 }
 
 big_integer &big_integer::operator^=(big_integer const &rhs) {
-    return common_fun_bits(rhs, [](size_t a, size_t b) -> size_t { return a ^ b; });
+    return common_fun_bits(rhs, [](uint32_t a, uint32_t b) -> uint32_t { return a ^ b; });
 }
 
 big_integer &big_integer::operator<<=(int rhs) {
@@ -339,7 +323,7 @@ int32_t comparator(big_integer const &a, big_integer const &b) {
     if (a.sign != b.sign) {
         return a.sign ? -1 : 1;
     }
-    for (ptrdiff_t index = std::max(a.data.size(), b.data.size()); index >= 0; index--) {
+    for (size_t index = std::max(a.data.size(), b.data.size()); index + 1 > index; index--) {
         uint32_t a_value = index < a.data.size() ? a.data[index] : a.empty_block(),
                  b_value = index < b.data.size() ? b.data[index] : b.empty_block();
         if (a_value != b_value) {

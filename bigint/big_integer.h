@@ -77,7 +77,7 @@ private:
 
     std::pair<big_integer, uint32_t> div_by_uint32_t(uint32_t rhs) const;
 
-    big_integer & common_fun_bits(big_integer const &rhs, const std::function<size_t(size_t, size_t)>& fn);
+    big_integer & common_fun_bits(big_integer const &rhs, const std::function<uint32_t(uint32_t, uint32_t)>& fn);
     friend int32_t comparator(big_integer const &a, big_integer const &b);
 
     void set_sign();
