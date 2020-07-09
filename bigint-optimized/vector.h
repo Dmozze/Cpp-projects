@@ -5,19 +5,19 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <variant>
 
 class vector {
-    static const size_t SMALL_SIZE = 16;
+    static const size_t SMALL_SIZE = 32;
 
-    std::array<uint32_t, SMALL_SIZE> small_array{};
-    std::shared_ptr<std::vector<uint32_t> > big_array;
+    typedef std::array<uint32_t, SMALL_SIZE> small_array;
+    typedef std::shared_ptr<std::vector<uint32_t> > big_array;
 
+    std::variant<small_array, big_array> storage;
     size_t size_;
     bool is_small;
 
     void split();
-
-    void check_uniqueness();
 
     void expand_to_big_one();
 

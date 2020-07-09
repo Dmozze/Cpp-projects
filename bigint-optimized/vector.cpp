@@ -1,37 +1,41 @@
 #include "vector.h"
 
 void vector::split() {
-    big_array = std::make_shared<std::vector<uint32_t> >(*big_array);
+    if (std::get<big_array>(storage).unique()) return;
+    std::get<big_array>(storage) = std::make_shared<std::vector<uint32_t> >(*std::get<big_array>(storage));
 }
 
-void vector::check_uniqueness() {
-    if (!big_array.unique()) split();
-}
 
 void vector::expand_to_big_one() {
-    big_array = std::make_shared<std::vector<uint32_t> >();
-    (*big_array).resize(size_);
+    std::shared_ptr<std::vector<uint32_t> > temp = std::make_shared<std::vector<uint32_t> >();
+    (*temp).resize(size_);
     for (size_t i = 0; i < size_; i++) {
-        (*big_array)[i] = small_array[i];
+        (*temp)[i] = std::get<small_array>(storage)[i];
     }
+    storage = temp;
     is_small = false;
 }
 
-vector::vector() : big_array(nullptr), size_(0), is_small(true) {}
+vector::vector() : size_(0), is_small(true) {}
 
 vector::vector(size_t x) : vector() {
     if (x > SMALL_SIZE) {
-        big_array = std::make_shared<std::vector<uint32_t> >();
-        (*big_array).resize(x);
+        storage = std::make_shared<std::vector<uint32_t> >();
+        (*std::get<big_array>(storage)).resize(x);
         is_small = false;
+    } else {
+        storage = small_array();
     }
     size_ = x;
 }
 
 vector::vector(const vector &x) : vector() {
-    small_array = x.small_array;
-    big_array = x.big_array;
     is_small = x.is_small;
+    if (is_small){
+        storage = std::get<small_array>(x.storage);
+    } else {
+        storage = std::get<big_array>(x.storage);
+    }
     size_ = x.size();
 }
 
@@ -44,8 +48,7 @@ vector &vector::operator=(const vector &x) {
 void vector::swap(vector &rhs) {
     std::swap(size_, rhs.size_);
     std::swap(is_small, rhs.is_small);
-    std::swap(small_array, rhs.small_array);
-    std::swap(big_array, rhs.big_array);
+    std::swap(storage, rhs.storage);
 }
 
 size_t vector::size() const {
@@ -53,20 +56,20 @@ size_t vector::size() const {
 }
 
 uint32_t vector::operator[](const size_t i) const {
-    return is_small ? small_array[i] : (*big_array)[i];
+    return is_small ? std::get<small_array>(storage)[i] : (*std::get<big_array>(storage))[i];
 }
 
 uint32_t& vector::operator[](size_t i) {
     if (is_small) {
-        return small_array[i];
+        return std::get<small_array>(storage)[i];
     } else {
-        check_uniqueness();
-        return (*big_array)[i];
+        split();
+        return (*std::get<big_array>(storage))[i];
     }
 }
 
 uint32_t vector::back() const {
-    return is_small ? small_array[size_ - 1] : (*big_array).back();
+    return is_small ? std::get<small_array>(storage)[size_ - 1] : (*std::get<big_array>(storage)).back();
 }
 
 bool vector::empty() const {
@@ -75,8 +78,8 @@ bool vector::empty() const {
 
 void vector::pop_back() {
     if (!is_small) {
-        check_uniqueness();
-        (*big_array).pop_back();
+        split();
+        (*std::get<big_array>(storage)).pop_back();
     }
     size_--;
 }
@@ -86,14 +89,14 @@ void vector::resize(const size_t x, const uint32_t val) {
     if (x > size_) {
         if (is_small && x <= SMALL_SIZE) {
             for (size_t i = size_; i < x; i++) {
-                small_array[i] = val;
+                std::get<small_array>(storage)[i] = val;
             }
         } else {
             if (is_small) {
                 expand_to_big_one();
             }
-            check_uniqueness();
-            (*big_array).resize(x, val);
+            split();
+            (*std::get<big_array>(storage)).resize(x, val);
         }
     }
     size_ = x;
