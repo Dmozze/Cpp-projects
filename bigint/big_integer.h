@@ -67,7 +67,7 @@ private:
     std::vector<uint32_t> data;
     bool sign;
 
-
+    bool is_zero() const;
     big_integer mul_by_uint32_t(uint32_t rhs) const;
 
     friend big_integer square_mul(big_integer const & left, big_integer const & right);
