@@ -14,13 +14,15 @@ big_integer::big_integer() : data(), sign(false) {
 big_integer::big_integer(big_integer const &other) = default;
 
 big_integer::big_integer(int a) : data(), sign(a < 0) {
-    data.push_back(static_cast<uint32_t>(a));
-    shrink_to_fit();
+    if (a != 0){
+        data.push_back(static_cast<uint32_t>(a));
+    }
 }
 
-
 big_integer::big_integer(const std::string &s) : big_integer() {
-
+    if (s.empty()) {
+        throw std::runtime_error("invalid string");
+    }
     for (size_t i = 0; i < s.size(); i++) {
         if ((s[i] == '+' || s[i] == '-') && i == 0) continue;
         if (s[i] < '0' || '9' < s[i]) {
@@ -128,33 +130,32 @@ big_integer &big_integer::operator*=(big_integer const &rhs) {
 }
 
 big_integer &big_integer::operator/=(big_integer const &rhs) {
-    if (rhs == 0) {
+    if (rhs.is_zero()) {
         throw std::runtime_error("division by zero");
     }
-    bool result_sign = sign ^rhs.sign;
-    big_integer rhs_abs = abs(rhs), &this_abs = *this;
-    this_abs = abs(this_abs);
-    if (rhs_abs > this_abs) {
-        return this_abs = 0;
+    bool result_sign = sign ^ rhs.sign;
+    big_integer rhs_abs = abs(rhs);
+    big_integer lhs_abs = abs(*this);
+    if (rhs_abs > lhs_abs) {
+        return *this = 0;
     }
     if (rhs_abs.data.size() == 1) {
-        this_abs = this_abs.div_by_uint32_t(rhs_abs.data.back()).first;
+        lhs_abs = lhs_abs.div_by_uint32_t(rhs_abs.data.back()).first;
         if (result_sign) {
-            this_abs = -this_abs;
+            lhs_abs = -lhs_abs;
         }
-        return this_abs;
+        return *this = lhs_abs;
     }
-
-    size_t n = rhs_abs.data.size(), m = this_abs.data.size();
+    size_t n = rhs_abs.data.size(), m = lhs_abs.data.size();
     uint64_t f = BASE / static_cast<uint64_t>(rhs_abs.data.back() + 1);
-    big_integer r = this_abs.mul_by_uint32_t(static_cast<uint32_t>(f));
+    big_integer r = lhs_abs.mul_by_uint32_t(static_cast<uint32_t>(f));
     big_integer d = rhs_abs.mul_by_uint32_t(static_cast<uint32_t>(f));
     big_integer result;
 
-    result.data.resize(m - n + 1, empty_block());
+    result.data.resize(m - n + 1, 0);
 
     for (ptrdiff_t k = m - n; k >= 0; k--) {
-        r.data.resize(m + n + 1, empty_block());
+        r.data.resize(m + n + 1, 0);
         unsigned __int128 dividend = r.data[n + k];
         dividend <<= BIT_DEPTH;
         dividend += r.data[n + k - 1];
@@ -319,6 +320,10 @@ big_integer operator>>(big_integer a, int b) {
     return a >>= b;
 }
 
+bool big_integer::is_zero() const {
+    return data.size() == 0 && sign == 0;
+}
+
 int32_t comparator(big_integer const &a, big_integer const &b) {
     if (a.sign != b.sign) {
         return a.sign ? -1 : 1;
@@ -358,7 +363,7 @@ bool operator>=(big_integer const &a, big_integer const &b) {
 }
 
 std::string to_string(const big_integer &rhs) {
-    if (rhs == 0) {
+    if (rhs.is_zero()) {
         return "0";
     }
     big_integer x = abs(rhs);
