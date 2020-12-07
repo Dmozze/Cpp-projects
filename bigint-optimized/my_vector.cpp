@@ -66,12 +66,14 @@ void my_vector::swap(my_vector &rhs) {
     if (rhs.is_small){
         small_array temp = storage.small;
         new(&storage.big) std::shared_ptr<std::vector<uint32_t>>(rhs.storage.big);
+        rhs.storage.big.reset();
         rhs.storage.small = temp;
         return;
     }
     if (is_small){
         small_array temp = rhs.storage.small;
         new(&rhs.storage.big) std::shared_ptr<std::vector<uint32_t>>(storage.big);
+        storage.big.reset();
         storage.small = temp;
     }
 }
