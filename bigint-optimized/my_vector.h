@@ -17,6 +17,8 @@ public:
 
     my_vector &operator=(const my_vector &x);
 
+    ~my_vector();
+
     void swap(my_vector &rhs);
 
     size_t size() const;
@@ -43,12 +45,12 @@ private:
 
     union any {
         big_array big;
-        small_array small;
+        small_array small{};
 
         any() {};
 
         ~any() {};
-    } storage_temp;
+    } storage;
 
     size_t size_;
     bool is_small;
