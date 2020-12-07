@@ -12,10 +12,7 @@ void my_vector::split() {
 
 void my_vector::expand_to_big_one() {
     assert(is_small);
-    std::shared_ptr<std::vector<uint32_t>> temp = std::make_shared<std::vector<uint32_t>>(size_);
-    for (size_t i = 0; i < size_; i++) {
-        temp->at(i) = storage.small[i];
-    }
+    std::shared_ptr<std::vector<uint32_t>> temp = std::make_shared<std::vector<uint32_t>>(storage.small.begin(), storage.small.begin() + size_);
     new(&storage.big) std::shared_ptr<std::vector<uint32_t>>(temp);
     is_small = false;
 }
@@ -56,20 +53,27 @@ my_vector &my_vector::operator=(const my_vector &x) {
 }
 
 void my_vector::swap(my_vector &rhs) {
-    if (is_small && rhs.is_small) {
-        std::swap(rhs.size_, size_);
-        std::swap(is_small, rhs.is_small);
+    std::swap(is_small, rhs.is_small);
+    std::swap(rhs.size_, size_);
+    if (is_small && rhs.is_small){
         std::swap(storage.small, rhs.storage.small);
         return;
     }
-    if (is_small) {
-        expand_to_big_one();
+    if (!is_small && !rhs.is_small){
+        std::swap(storage.big, rhs.storage.big);
+        return;
     }
-    if (rhs.is_small) {
-        rhs.expand_to_big_one();
+    if (rhs.is_small){
+        small_array temp = storage.small;
+        new(&storage.big) std::shared_ptr<std::vector<uint32_t>>(rhs.storage.big);
+        rhs.storage.small = temp;
+        return;
     }
-    std::swap(rhs.size_, size_);
-    std::swap(rhs.storage.big, storage.big);
+    if (is_small){
+        small_array temp = rhs.storage.small;
+        new(&rhs.storage.big) std::shared_ptr<std::vector<uint32_t>>(storage.big);
+        storage.small = temp;
+    }
 }
 
 size_t my_vector::size() const {
@@ -107,18 +111,18 @@ void my_vector::pop_back() {
 
 
 void my_vector::resize(const size_t x, const uint32_t val) {
-    if (x > size_) {
-        if (is_small && x <= SMALL_SIZE) {
+    if (x > size_ && is_small)  {
+        if (x <= SMALL_SIZE){
             for (size_t i = size_; i < x; i++) {
                 storage.small[i] = val;
             }
         } else {
-            if (is_small) {
-                expand_to_big_one();
-            }
-            split();
-            storage.big->resize(x, val);
+            expand_to_big_one();
         }
+    }
+    if (!is_small){
+        split();
+        storage.big->resize(x, val);
     }
     size_ = x;
 }
