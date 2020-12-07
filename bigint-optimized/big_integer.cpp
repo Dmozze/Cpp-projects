@@ -119,7 +119,7 @@ big_integer &big_integer::operator*=(big_integer const &rhs) {
     big_integer right = abs(rhs);
     big_integer &result = *this;
     bool result_sign = sign ^ rhs.sign;
-    result = Karatsuba_mul(left, right);
+    result = square_mul(left, right);
     if (result_sign) {
         result = -result;
     }

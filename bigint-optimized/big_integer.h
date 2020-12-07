@@ -2,7 +2,7 @@
 
 #include <string>
 #include <functional>
-#include "vector.h"
+#include "my_vector.h"
 
 struct big_integer {
     big_integer();
@@ -64,7 +64,7 @@ private:
     static const uint32_t BIT_DEPTH = 32;
     static const uint64_t BASE = static_cast<uint64_t>(1) + UINT32_MAX;
 
-    vector data;
+    my_vector data;
     bool sign;
 
 
