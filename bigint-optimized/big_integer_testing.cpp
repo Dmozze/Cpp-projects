@@ -24,7 +24,10 @@ TEST(correctness, default_ctor) {
 
 TEST(correctness, ctor_limits) {
   big_integer a = std::numeric_limits<int>::min();
+  std::string a_str  =to_string(a);
   big_integer b = std::numeric_limits<int>::max();
+  std::string b_str = to_string(b);
+
   EXPECT_EQ(-1, a + b);
 }
 
@@ -81,6 +84,10 @@ TEST(correctness, comparisons) {
   big_integer b = 100;
   big_integer c = 200;
   big_integer d = -1;
+    std::string a_str = to_string(a);
+    std::string b_str = to_string(b);
+    std::string c_str = to_string(c);
+    std::string d_str = to_string(d);
 
   EXPECT_TRUE(a == b);
   EXPECT_TRUE(a != c);
@@ -425,9 +432,9 @@ TEST(correctness, add_long_signed) {
 }
 
 TEST(correctness, add_long_signed2) {
+    big_integer c("-999999999999999999999999999999999999999999999999999900000000000000000000000000000000000000");
   big_integer a("-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
   big_integer b("100000000000000000000000000000000000000");
-  big_integer c("-999999999999999999999999999999999999999999999999999900000000000000000000000000000000000000");
   EXPECT_EQ(c, a + b);
 }
 

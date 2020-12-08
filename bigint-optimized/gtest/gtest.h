@@ -281,7 +281,7 @@
 //   GTEST_FLAG()       - references a flag.
 //   GTEST_DECLARE_*()  - declares a flag.
 //   GTEST_DEFINE_*()   - defines a flag.
-//   GetInjectableArgvs() - returns the command line as a vector of strings.
+//   GetInjectableArgvs() - returns the command line as a my_vector of strings.
 //
 // Environment variable utilities:
 //   GetEnv()             - gets the value of an environment variable.
@@ -9006,7 +9006,7 @@ TEST_P(DerivedTest, DoesBlah) {
 //   will happen (double deletion).
 //
 // A good use of this class is storing object references in STL containers.
-// You can safely put linked_ptr<> in a vector<>.
+// You can safely put linked_ptr<> in a my_vector<>.
 // Other uses may not be as good.
 //
 // Note: If you use an incomplete type with linked_ptr<>, the class
@@ -9266,10 +9266,10 @@ linked_ptr<T> make_linked_ptr(T* ptr) {
 //   // pointer and the NUL-terminated string for a (const or not) char pointer.
 //   void ::testing::internal::UniversalPrint(const T& value, ostream*);
 //
-//   // Prints the fields of a tuple tersely to a string vector, one
+//   // Prints the fields of a tuple tersely to a string my_vector, one
 //   // element for each field. Tuple support must be enabled in
 //   // gtest-port.h.
-//   std::vector<string> UniversalTersePrintTupleFieldsToStrings(
+//   std::my_vector<string> UniversalTersePrintTupleFieldsToStrings(
 //       const Tuple& value);
 //
 // Known limitation:
@@ -9969,7 +9969,7 @@ struct TuplePrefixPrinter {
         ::Print(::std::tr1::get<N - 1>(t), os);
   }
 
-  // Tersely prints the first N fields of a tuple to a string vector,
+  // Tersely prints the first N fields of a tuple to a string my_vector,
   // one element for each field.
   template <typename Tuple>
   static void TersePrintPrefixToStrings(const Tuple& t, Strings* strings) {
@@ -10020,7 +10020,7 @@ void PrintTupleTo(const T& t, ::std::ostream* os) {
   *os << ")";
 }
 
-// Prints the fields of a tuple tersely to a string vector, one
+// Prints the fields of a tuple tersely to a string my_vector, one
 // element for each field.  See the comment before
 // UniversalTersePrint() for how we define "tersely".
 template <typename Tuple>
@@ -15844,8 +15844,8 @@ internal::ParamGenerator<T> Range(T start, T end) {
 // This instantiates tests from test case StlStringTest
 // each with STL strings with values "a" and "b":
 //
-// ::std::vector< ::std::string> GetParameterStrings() {
-//   ::std::vector< ::std::string> v;
+// ::std::my_vector< ::std::string> GetParameterStrings() {
+//   ::std::my_vector< ::std::string> v;
 //   v.push_back("a");
 //   v.push_back("b");
 //   return v;
@@ -17960,12 +17960,12 @@ class GTEST_API_ TestResult {
   friend class internal::UnitTestImpl;
   friend class internal::WindowsDeathTest;
 
-  // Gets the vector of TestPartResults.
+  // Gets the my_vector of TestPartResults.
   const std::vector<TestPartResult>& test_part_results() const {
     return test_part_results_;
   }
 
-  // Gets the vector of TestProperties.
+  // Gets the my_vector of TestProperties.
   const std::vector<TestProperty>& test_properties() const {
     return test_properties_;
   }
@@ -18003,13 +18003,13 @@ class GTEST_API_ TestResult {
   // Clears the object.
   void Clear();
 
-  // Protects mutable state of the property vector and of owned
+  // Protects mutable state of the property my_vector and of owned
   // properties, whose values may be updated.
   internal::Mutex test_properites_mutex_;
 
-  // The vector of TestPartResults
+  // The my_vector of TestPartResults
   std::vector<TestPartResult> test_part_results_;
-  // The vector of TestProperties
+  // The my_vector of TestProperties
   std::vector<TestProperty> test_properties_;
   // Running count of death tests.
   int death_test_count_;
@@ -18153,7 +18153,7 @@ class GTEST_API_ TestInfo {
   GTEST_DISALLOW_COPY_AND_ASSIGN_(TestInfo);
 };
 
-// A test case, which consists of a vector of TestInfos.
+// A test case, which consists of a my_vector of TestInfos.
 //
 // TestCase is not copyable.
 class GTEST_API_ TestCase {
@@ -18233,10 +18233,10 @@ class GTEST_API_ TestCase {
   friend class Test;
   friend class internal::UnitTestImpl;
 
-  // Gets the (mutable) vector of TestInfos in this TestCase.
+  // Gets the (mutable) my_vector of TestInfos in this TestCase.
   std::vector<TestInfo*>& test_info_list() { return test_info_list_; }
 
-  // Gets the (immutable) vector of TestInfos in this TestCase.
+  // Gets the (immutable) my_vector of TestInfos in this TestCase.
   const std::vector<TestInfo*>& test_info_list() const {
     return test_info_list_;
   }
@@ -18313,12 +18313,12 @@ class GTEST_API_ TestCase {
   // Name of the parameter type, or NULL if this is not a typed or a
   // type-parameterized test.
   const internal::scoped_ptr<const ::std::string> type_param_;
-  // The vector of TestInfos in their original order.  It owns the
-  // elements in the vector.
+  // The my_vector of TestInfos in their original order.  It owns the
+  // elements in the my_vector.
   std::vector<TestInfo*> test_info_list_;
   // Provides a level of indirection for the test list to allow easy
   // shuffling and restoring the test order.  The i-th element in this
-  // vector is the index of the i-th test in the shuffled test list.
+  // my_vector is the index of the i-th test in the shuffled test list.
   std::vector<int> test_indices_;
   // Pointer to the function that sets up the test case.
   Test::SetUpTestCaseFunc set_up_tc_;
@@ -18519,7 +18519,7 @@ class GTEST_API_ TestEventListeners {
   GTEST_DISALLOW_COPY_AND_ASSIGN_(TestEventListeners);
 };
 
-// A UnitTest consists of a vector of TestCases.
+// A UnitTest consists of a my_vector of TestCases.
 //
 // This is a singleton class.  The only instance of UnitTest is
 // created when UnitTest::GetInstance() is first called.  This
